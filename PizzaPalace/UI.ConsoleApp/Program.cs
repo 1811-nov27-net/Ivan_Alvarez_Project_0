@@ -339,55 +339,280 @@ namespace UI.ConsoleApp
                         {
                             //have location history
                             var orderlist = new List<Orderdetails>();
+                            //var historybycheap = new List<>
                             for(var i = 0; i< locationhistory.Count(); i++)
                             {
                                 orderlist.Add(PizzaRepository.Graborder(locationhistory[i].Orderid));
+                              //  Console.WriteLine("\n added order to order list\n");
                             }
                             var neworderlist = new List<Orderdetails>();
                             for(var i = 0; i < orderlist.Count(); i++)
                             {
+                               // Console.WriteLine("loop of orderlist");
                                 if(neworderlist.Count() == 0) { neworderlist.Add(orderlist[i]); }
                                 else
                                 {
-                                    for(var j = 0; j < neworderlist.Count(); j++)
+                                    var k = neworderlist.Count() - 1;
+
+                                    for (var j = 0; j < neworderlist.Count(); j++)
                                     {
-                                        //if(orderlist[i].Totalcost > )
+                                        // Console.WriteLine("loop of neworderlist");
+
+
+                                        if (orderlist[i].Totalcost < neworderlist[j].Totalcost )
+                                        {
+                                            neworderlist.Insert(j, orderlist[i]);
+                                           // Console.WriteLine("\n inserted order to neworderlist\n");
+
+                                        }
+                                        else if( j == k)
+                                        {
+                                            neworderlist.Add(orderlist[i]);
+                                           // Console.WriteLine("\n added order to neworderlist\n");
+                                        }
                                     }
                                 }
                             }
+                            Console.WriteLine($"\n{storename} history by Cheapest:\n");
+                            for (var i = 0; i < neworderlist.Count(); i++)
+                            {
+                                storeuser = PizzaRepository.Grabcustomerbyid(neworderlist[i].Customerid);
+                             //   storeorder = PizzaRepository.Graborder(neworderlist[i].);
+                                locationdelivery = PizzaRepository.Grablocation(neworderlist[i].Locationid);
+                                Console.WriteLine($"Delivered to: {locationdelivery.Street}, " +
+                                    $"{locationdelivery.City}, {locationdelivery.State}\n");
+                                double count = neworderlist[i].Totalcost / 6.75;
+                                Console.WriteLine($"{storeuser.Username} ordered {count} pizzas at a cost " +
+                                    $"of {neworderlist[i].Totalcost} on {neworderlist[i].Dateplaced}\n");
+                            }
+                        }
+                        else if (dispinput == "M" || dispinput == "m")
+                        {
+                            //have location history
+                            var orderlist = new List<Orderdetails>();
+                            //var historybycheap = new List<>
+                            for (var i = 0; i < locationhistory.Count(); i++)
+                            {
+                                orderlist.Add(PizzaRepository.Graborder(locationhistory[i].Orderid));
+                            }
+                            var neworderlist = new List<Orderdetails>();
+                            for (var i = 0; i < orderlist.Count(); i++)
+                            {
+                                if (neworderlist.Count() == 0) { neworderlist.Add(orderlist[i]); }
+                                else
+                                {
+                                    for (var j = 0; j < neworderlist.Count(); j++)
+                                    {
+                                        if (orderlist[i].Totalcost > neworderlist[j].Totalcost)
+                                        {
+                                            neworderlist.Insert(j, orderlist[i]);
+                                        }
+                                        else if (j == (neworderlist.Count() - 1))
+                                        {
+                                            neworderlist.Add(orderlist[i]);
+                                        }
+                                    }
+                                }
+                            }
+                            Console.WriteLine($"\n{storename} history by Most Expensive:\n");
+                            for (var i = 0; i < neworderlist.Count(); i++)
+                            {
+                                storeuser = PizzaRepository.Grabcustomerbyid(neworderlist[i].Customerid);
+                                //   storeorder = PizzaRepository.Graborder(neworderlist[i].);
+                                locationdelivery = PizzaRepository.Grablocation(neworderlist[i].Locationid);
+                                Console.WriteLine($"Delivered to: {locationdelivery.Street}, " +
+                                    $"{locationdelivery.City}, {locationdelivery.State}\n");
+                                double count = neworderlist[i].Totalcost / 6.75;
+                                Console.WriteLine($"{storeuser.Username} ordered {count} pizzas at a cost " +
+                                    $"of {neworderlist[i].Totalcost} on {neworderlist[i].Dateplaced}\n");
+                            }
                         }
                     }
+                    else if(empinput == "I" || empinput == "i")
+                    {
+                        Console.WriteLine("Function not availabe (coming soon)");
+                    }
                 }
-                Console.WriteLine("Would you like to search users(U or u):");
-                Console.WriteLine("Would you like to search history(H or h):");
-                Console.WriteLine("Would you like to check inventory(I or i):");
-       
-            }
-
-            string input = "DonMario";
-
-            //display user info and last order date
-
-            Console.WriteLine("Place order?(enter P or p):");
-            
-
-            var customer1 = new Customer();
-
-            var users = PizzaRepository.Getcustomers().ToList();
-
-            Console.WriteLine(users.First().Username);
-            for(var i = 0; i < users.Count; i++)
-            {
-                var customer2 = users[i];
-                if (input == customer2.Username)
+                else if(empinput == "C" || empinput == "c")
                 {
-                    customer1 = customer2;
-                    Console.WriteLine($"{users.Count()}");
-                    Console.WriteLine($"{customer1.Username}");
-                    Console.WriteLine($"{customer1.Userid}");
-                   // Console
+                    storename = "Pizza Palace Central";
+                    var storelist = PizzaRepository.Getpizzastores().ToList();
+                    for (var i = 0; i < storelist.Count(); i++)
+                    {
+                        if (storename == storelist[i].Name)
+                        {
+                            newstore = storelist[i];
+                        }
+                    }
+
+                    Console.WriteLine("\nWould you like to search users(U or u):");
+                    Console.WriteLine("Would you like to search history(H or h):");
+                    Console.WriteLine("Would you like to check inventory(I or i):\n");
+                    empinput = Console.ReadLine();
+                    if (empinput == "U" || empinput == "u")
+                    {
+                        var user = new Customer();
+                        Console.WriteLine("what is their username?:");
+                        var username = Console.ReadLine();
+                        user = PizzaRepository.Grabcustomer(username);
+                        var deflocation = PizzaRepository.Grablocation(user.Deflocationid);
+                        Console.WriteLine("\nTheir default location: ");
+                        Console.WriteLine($"{deflocation.Street}, {deflocation.City}, {deflocation.State}\n");
+                        var allhistory = PizzaRepository.Gethistory().ToList();
+                        var userhistory = new List<History>();
+                        for (var i = 0; i < allhistory.Count(); i++)
+                        {
+                            if (user.Userid == allhistory[i].Userid && newstore.Storeid == allhistory[i].Storeid)
+                            { userhistory.Add(allhistory[i]); }
+                        }
+                        Console.WriteLine($"And they've ordered from {storename}: {userhistory.Count()} times");
+                    }
+                    else if (empinput == "H" || empinput == "h")
+                    {
+                        var allhistory = PizzaRepository.Gethistory().ToList();
+                        var locationhistory = new List<History>();
+
+                        for (var i = 0; i < allhistory.Count(); i++)
+                        {
+                            if (newstore.Storeid == allhistory[i].Storeid)
+                            { locationhistory.Add(allhistory[i]); }
+                        }
+
+                        Console.WriteLine("How would you like to display history?");
+                        Console.WriteLine("By earliest(E or e), by latest(L or l)");
+                        Console.WriteLine("by cheapest(C or c), or by most expensive(M or m)");
+                        var dispinput = Console.ReadLine();
+                        var locationdelivery = new Location();
+                        var storeuser = new Customer();
+                        var storeorder = new Orderdetails();
+                        if (dispinput == "E" || dispinput == "e")
+                        {
+                            Console.WriteLine($"\n{storename} history by Earliest:\n");
+                            for (var i = 0; i < locationhistory.Count(); i++)
+                            {
+                                storeuser = PizzaRepository.Grabcustomerbyid(locationhistory[i].Userid);
+                                storeorder = PizzaRepository.Graborder(locationhistory[i].Orderid);
+                                locationdelivery = PizzaRepository.Grablocation(storeorder.Locationid);
+                                Console.WriteLine($"Delivered to: {locationdelivery.Street}, " +
+                                    $"{locationdelivery.City}, {locationdelivery.State}\n");
+                                double count = storeorder.Totalcost / 6.75;
+                                Console.WriteLine($"{storeuser.Username} ordered {count} pizzas at a cost " +
+                                    $"of {storeorder.Totalcost} on {storeorder.Dateplaced}\n");
+                            }
+                        }
+                        else if (dispinput == "L" || dispinput == "l")
+                        {
+                            Console.WriteLine($"\n{storename} history by Latest:\n");
+                            for (var i = locationhistory.Count() - 1; i >= 0; i--)
+                            {
+                                storeuser = PizzaRepository.Grabcustomerbyid(locationhistory[i].Userid);
+                                storeorder = PizzaRepository.Graborder(locationhistory[i].Orderid);
+                                locationdelivery = PizzaRepository.Grablocation(storeorder.Locationid);
+                                Console.WriteLine($"Delivered to: {locationdelivery.Street}, " +
+                                    $"{locationdelivery.City}, {locationdelivery.State}\n");
+                                double count = storeorder.Totalcost / 6.75;
+                                Console.WriteLine($"{storeuser.Username} ordered {count} pizzas at a cost " +
+                                    $"of {storeorder.Totalcost} on {storeorder.Dateplaced}\n");
+                            }
+                        }
+                        else if (dispinput == "C" || dispinput == "c")
+                        {
+                            //have location history
+                            var orderlist = new List<Orderdetails>();
+                            //var historybycheap = new List<>
+                            for (var i = 0; i < locationhistory.Count(); i++)
+                            {
+                                orderlist.Add(PizzaRepository.Graborder(locationhistory[i].Orderid));
+                                Console.WriteLine("\n added order to order list\n");
+                            }
+                            var neworderlist = new List<Orderdetails>();
+                            for (var i = 0; i < orderlist.Count(); i++)
+                            {
+                                Console.WriteLine("loop of orderlist");
+                                if (neworderlist.Count() == 0) { neworderlist.Add(orderlist[i]); }
+                                else
+                                {
+                                    var k = neworderlist.Count() - 1;
+
+                                    for (var j = 0; j < neworderlist.Count(); j++)
+                                    {
+                                        Console.WriteLine("loop of neworderlist");
+
+
+                                        if (orderlist[i].Totalcost < neworderlist[j].Totalcost)
+                                        {
+                                            neworderlist.Insert(j, orderlist[i]);
+                                            Console.WriteLine("\n inserted order to neworderlist\n");
+
+                                        }
+                                        else if (j == k)
+                                        {
+                                            neworderlist.Add(orderlist[i]);
+                                            Console.WriteLine("\n added order to neworderlist\n");
+                                        }
+                                    }
+                                }
+                            }
+                            Console.WriteLine($"\n{storename} history by Cheapest:\n");
+                            for (var i = 0; i < neworderlist.Count(); i++)
+                            {
+                                storeuser = PizzaRepository.Grabcustomerbyid(neworderlist[i].Customerid);
+                                //   storeorder = PizzaRepository.Graborder(neworderlist[i].);
+                                locationdelivery = PizzaRepository.Grablocation(neworderlist[i].Locationid);
+                                Console.WriteLine($"Delivered to: {locationdelivery.Street}, " +
+                                    $"{locationdelivery.City}, {locationdelivery.State}\n");
+                                double count = neworderlist[i].Totalcost / 6.75;
+                                Console.WriteLine($"{storeuser.Username} ordered {count} pizzas at a cost " +
+                                    $"of {neworderlist[i].Totalcost} on {neworderlist[i].Dateplaced}\n");
+                            }
+                        }
+                        else if (dispinput == "M" || dispinput == "m")
+                        {
+                            //have location history
+                            var orderlist = new List<Orderdetails>();
+                            //var historybycheap = new List<>
+                            for (var i = 0; i < locationhistory.Count(); i++)
+                            {
+                                orderlist.Add(PizzaRepository.Graborder(locationhistory[i].Orderid));
+                            }
+                            var neworderlist = new List<Orderdetails>();
+                            for (var i = 0; i < orderlist.Count(); i++)
+                            {
+                                if (neworderlist.Count() == 0) { neworderlist.Add(orderlist[i]); }
+                                else
+                                {
+                                    for (var j = 0; j < neworderlist.Count(); j++)
+                                    {
+                                        if (orderlist[i].Totalcost > neworderlist[j].Totalcost)
+                                        {
+                                            neworderlist.Insert(j, orderlist[i]);
+                                        }
+                                        else if (j == (neworderlist.Count() - 1))
+                                        {
+                                            neworderlist.Add(orderlist[i]);
+                                        }
+                                    }
+                                }
+                            }
+                            Console.WriteLine($"\n{storename} history by Most Expensive:\n");
+                            for (var i = 0; i < neworderlist.Count(); i++)
+                            {
+                                storeuser = PizzaRepository.Grabcustomerbyid(neworderlist[i].Customerid);
+                                //   storeorder = PizzaRepository.Graborder(neworderlist[i].);
+                                locationdelivery = PizzaRepository.Grablocation(neworderlist[i].Locationid);
+                                Console.WriteLine($"Delivered to: {locationdelivery.Street}, " +
+                                    $"{locationdelivery.City}, {locationdelivery.State}\n");
+                                double count = neworderlist[i].Totalcost / 6.75;
+                                Console.WriteLine($"{storeuser.Username} ordered {count} pizzas at a cost " +
+                                    $"of {neworderlist[i].Totalcost} on {neworderlist[i].Dateplaced}\n");
+                            }
+                        }
+                    }
+                    else if (empinput == "I" || empinput == "i")
+                    {
+                        Console.WriteLine("Function not availabe (coming soon)");
+                    }
                 }
-                
             }
         }
     }
